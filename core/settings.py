@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config.DJANGO_SECRET_KEY
 DEBUG = config.DEBUG
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = config.ALLOWED_HOSTS4
 
 INSTALLED_APPS = [
     'modeltranslation',
@@ -19,10 +19,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'bot',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -55,8 +57,12 @@ ASGI_APPLICATION = 'core.asgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config.DB_NAME,
+        'USER': config.DB_USER,
+        'PASSWORD': config.DB_PASS,
+        'HOST': config.DB_HOST,
+        'PORT': config.DB_PORT,
     }
 }
 
@@ -90,3 +96,10 @@ STATIC_ROOT = BASE_DIR / 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://ezma.uz',
+    'http://ezma.uz',
+]
