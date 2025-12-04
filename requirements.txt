@@ -25,5 +25,5 @@ python-dotenv==1.2.1
 sqlparse==0.5.3
 typing-inspection==0.4.2
 typing_extensions==4.15.0
-uvicorn==0.38.0
+uvicorn[standard]==0.24.0
 yarl==1.22.0

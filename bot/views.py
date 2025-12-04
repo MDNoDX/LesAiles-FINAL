@@ -1,9 +1,10 @@
 import json
 import logging
+import asyncio
 from aiogram.types import Update
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 from bot.apps import BotConfig
 
 logger = logging.getLogger(__name__)
@@ -14,37 +15,57 @@ async def webhook(request):
     try:
         update_data = json.loads(request.body.decode('utf-8'))
         update = Update(**update_data)
-        await BotConfig.dp.feed_update(bot=BotConfig.bot, update=update)
+        
+        bot = await BotConfig.get_bot()
+        dp = await BotConfig.get_dp()
+        
+        await dp.feed_update(bot=bot, update=update)
         return JsonResponse({'status': 'ok'})
+        
     except Exception as e:
         logger.error(f"Webhook error: {e}", exc_info=True)
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
+@require_GET
 async def set_webhook_view(request):
-    from core import config
     try:
+        from core import config
+        
+        bot = await BotConfig.get_bot()
+        
         webhook_url = f"{config.BASE_WEBHOOK_URL}{config.WEBHOOK_PATH}"
-        await BotConfig.bot.set_webhook(
+        
+        logger.info(f"Setting webhook to: {webhook_url}")
+        
+        await bot.set_webhook(
             url=webhook_url,
             secret_token=config.WEBHOOK_SECRET,
             drop_pending_updates=True
         )
-        webhook_info = await BotConfig.bot.get_webhook_info()
+        
+        webhook_info = await bot.get_webhook_info()
+        
         return JsonResponse({
             'status': 'success',
-            'message': f'Webhook set to: {webhook_url}',
+            'message': f'✅ Webhook set successfully!',
+            'webhook_url': webhook_url,
             'webhook_info': {
                 'url': webhook_info.url,
-                'pending_update_count': webhook_info.pending_update_count
+                'pending_update_count': webhook_info.pending_update_count,
+                'max_connections': webhook_info.max_connections,
             }
         })
+        
     except Exception as e:
         logger.error(f"Set webhook error: {e}", exc_info=True)
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
+@require_GET
 async def webhook_info_view(request):
     try:
-        webhook_info = await BotConfig.bot.get_webhook_info()
+        bot = await BotConfig.get_bot()
+        webhook_info = await bot.get_webhook_info()
+        
         return JsonResponse({
             'status': 'success',
             'webhook_info': {
@@ -56,9 +77,28 @@ async def webhook_info_view(request):
                 'max_connections': webhook_info.max_connections,
             }
         })
+        
     except Exception as e:
         logger.error(f"Webhook info error: {e}", exc_info=True)
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
-def health_check(request):
-    return JsonResponse({'status': 'ok'})
+@require_GET
+async def delete_webhook_view(request):
+    try:
+        bot = await BotConfig.get_bot()
+        
+        result = await bot.delete_webhook(drop_pending_updates=True)
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': '✅ Webhook deleted successfully!',
+            'result': result
+        })
+        
+    except Exception as e:
+        logger.error(f"Delete webhook error: {e}", exc_info=True)
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+@require_GET
+async def health_check(request):
+    return JsonResponse({'status': 'ok', 'bot_initialized': BotConfig._initialized})

@@ -48,33 +48,31 @@ async def product_selected(call: CallbackQuery, state: FSMContext):
             current_product_price=float(product.price),
             current_quantity=1
         )
-        
-        try:
-            if product.file_id:
-                caption = f"**{product.title}**\n\n{product.description}\n\n**Price: {product.price} so'm**\n\n{_('Select quantity:')}"
+
+        product_text = f"**{product.title}**\n\n{product.description}\n\n**Price: {product.price:,.0f} so'm**\n\n{_('Select quantity:')}"
+
+        if product.file_id:
+            try:
                 await call.message.answer_photo(
                     photo=product.file_id,
-                    caption=caption,
+                    caption=product_text,
                     reply_markup=await get_quantity_keyboard(product.id, 1)
                 )
                 await call.message.delete()
-            else:
-                text = f"**{product.title}**\n\n{product.description}\n\n**Price: {product.price} so'm**\n\n{_('Select quantity:')}"
+            except Exception as e:
                 await call.message.edit_text(
-                    text,
+                    product_text,
                     reply_markup=await get_quantity_keyboard(product.id, 1)
                 )
-        except Exception as e:
-            text = f"**{product.title}**\n\n{product.description}\n\n**Price: {product.price} so'm**\n\n{_('Select quantity:')}"
+        else:
             await call.message.edit_text(
-                text,
+                product_text,
                 reply_markup=await get_quantity_keyboard(product.id, 1)
             )
         
         await state.set_state(OrderState.quantity)
     else:
         await call.answer(_("Product not found"), show_alert=True)
-
 @router.callback_query(F.data.startswith("increase_"), OrderState.quantity)
 async def increase_quantity(call: CallbackQuery, state: FSMContext):
     product_id = int(call.data.split("_")[1])

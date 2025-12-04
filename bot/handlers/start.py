@@ -3,7 +3,6 @@ from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from django.utils.translation import gettext as _
-
 from bot.keyboards.builder import default_keyboard_builder
 from bot.keyboards.default.user import get_user_main_keyboards
 from bot.keyboards.inline.user import get_language_keyboard
@@ -27,13 +26,11 @@ async def cmd_start(message: Message, state: FSMContext):
     )
     
     if created:
-        welcome_text = """
-Assalomu alaykum! Les Ailes yetkazib berish xizmatiga xush kelibsiz.
+        welcome_text = """Assalomu alaykum! Les Ailes yetkazib berish xizmatiga xush kelibsiz.
 
 Здравствуйте! Добро пожаловать в службу доставки Les Ailes.
 
-Hello! Welcome to Les Ailes delivery service.
-"""
+Hello! Welcome to Les Ailes delivery service."""
         await message.answer(
             welcome_text,
             reply_markup=await get_language_keyboard()

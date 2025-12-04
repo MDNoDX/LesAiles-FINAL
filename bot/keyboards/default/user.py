@@ -25,3 +25,20 @@ async def get_user_main_keyboards():
         ]
     )
     return keyboard
+
+async def get_settings_keyboards():
+    keyboard = ReplyKeyboardMarkup(
+        resize_keyboard=True,
+        keyboard=[
+            [
+                KeyboardButton(text=_("🌐 Change language")),
+            ],
+            [
+                KeyboardButton(text=_("🏙️ Change city")),
+            ],
+            [
+                KeyboardButton(text=_("⬅️ Back")),
+            ]
+        ]
+    )
+    return keyboard

@@ -9,9 +9,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config.DJANGO_SECRET_KEY
 DEBUG = config.DEBUG
-ALLOWED_HOSTS = config.ALLOWED_HOSTS4
+ALLOWED_HOSTS = config.ALLOWED_HOSTS
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-lesailes',
+    }
+}
 
 INSTALLED_APPS = [
+    'daphne',
     'modeltranslation',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -63,6 +71,10 @@ DATABASES = {
         'PASSWORD': config.DB_PASS,
         'HOST': config.DB_HOST,
         'PORT': config.DB_PORT,
+        'CONN_MAX_AGE': 60,
+        'OPTIONS': {
+            'connect_timeout': 10,
+        }
     }
 }
 
@@ -82,9 +94,11 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'en'
+
 LANGUAGES = (
     ('en', 'English'),
     ('uz', 'Uzbek'),
+    ('ru', 'Russian'),
 )
 LOCALE_PATHS = [BASE_DIR / 'locale']
 TIME_ZONE = 'UTC'
@@ -100,6 +114,24 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://ezma.uz',
-    'http://ezma.uz',
+    'https://e.ezma.uz',
+    'http://e.ezma.uz',
 ]
+
+DEBUG = config.DEBUG
+if DEBUG:
+    INSTALLED_APPS += ['django_extensions']
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}

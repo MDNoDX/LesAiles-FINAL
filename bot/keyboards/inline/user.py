@@ -2,11 +2,11 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from django.utils.translation import gettext as _
 
 async def get_language_keyboard():
-    """Keyboard for language selection"""
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="🇺🇸 English", callback_data="lang_en"),
             InlineKeyboardButton(text="🇺🇿 O'zbekcha", callback_data="lang_uz"),
+            InlineKeyboardButton(text="🇷🇺 Русский", callback_data="lang_ru"),
         ]
     ])
     return keyboard
@@ -31,7 +31,6 @@ async def get_products_keyboard(products):
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 async def get_quantity_keyboard(product_id, current_quantity=1):
-    """+ va - tugmalari bilan miqdor tanlash keyboardi"""
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="➖", callback_data=f"decrease_{product_id}"),
